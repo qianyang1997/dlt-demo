@@ -1,4 +1,4 @@
-# DLT architecture, with change data capture (CDC)
+# Delta Live Table (DLT) & Change Data Capture (CDC)
 
 DLT architecture centers around a net-new philosophy. The building blocks of the DLT framework are streaming tables and materialized views. Streaming tables are append-only tables; if a row is created, it cannot be modified. Materialized views contain the results of queries; rows are refreshed to showcase updates from the latest data at each pipeline run.
 
@@ -10,7 +10,7 @@ To transform, aggregate, and join data from different sources, we create materia
 
 Of course, there's the CDC feature.
 
-### How does CDC fit into the architecture
+### How CDC fits into the architecture
 
 One of the goals of CDC is to efficiently retrieve the historical state of a table at any given point. It tracks changes to the table, allowing downstream pipelines to query only the changes rather than the entire table, thereby optimizing further transformations.
 
@@ -25,3 +25,22 @@ Firstly, we begin by ingesting raw data as streaming tables. All incoming data i
 Secondly, we implement a CDC layer to track the historical progression of the raw table. We can dynamically apply filters to capture specific snapshots of the table at defined time intervals for downstream transformation purposes.
 
 Thirdly, we execute transformations, aggregations, and joins to generate materialized views tailored to meet business requirements. With each refresh, these materialized views incorporate "net new" information from the source tables and seamlessly integrate it into the final view.
+
+### Running the demo
+
+*Disclaimer: the demo uses Azure Databricks.*
+
+This demo aims to illustrate the following features of DLT:
+- Autoloading for full & incremental loads
+- Change data capture
+- DLT pipelines
+
+First, run `notebooks/1_ingest_mock_full_load.py` to ingest an initial load of data to hive metastore.
+
+Second, create a DLT pipeline for `mock_data_pipeline.py`. This notebook specifies the structure of the data flow (as well as dependencies of tables). Note that you can't populate any tables by running the notebook; tables are only created and modified via pipeline runs.
+
+Run the DLT pipeline, and examine the result of the initial load using `notebooks/2_result_from_initial_pipeline_run.py`.
+
+Next, run `notebooks/3_create_mock_incremental_load.py` to ingest a subsequent load of data to the same directories that contain the initial load.
+
+Run the DLT pipeline again, and examine the result of the subsequent load using `notebooks/4_result_from_second_pipeline_run.py`. Note how the raw and CDC tables have been updated since the initial run.
